@@ -7,6 +7,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JSONResponse;
+use Symfony\Component\Validator\Constraints as Assert;
 use AppBundle\Services\HelperService;
 
 
@@ -36,6 +37,22 @@ class DefaultController extends Controller
       $data = array('status' => 'error', 'data' => 'Send json via post');
       if(! is_null($json))
       {
+        $params = json_decode($json);//convertimos un json a array php
+
+        $email = (isset($params->email)) ? $params->email : null;
+        $password = (isset($params->password)) ? $params->password : null;
+
+        $emailConstraint = new Assert\Email();
+        $emailConstraint->message = 'El email es invalido';
+        $emailValidated = $this->get('validator')->validate($email,$emailConstraint);
+
+        if(count($emailValidated) == 0 && !is_null($password))
+        {
+          $data = array('status' => 'success', 'data' => 'Send json via post OK!');
+
+        }else {
+          $data = array('status' => 'error', 'data' => 'email or password invalid');
+        }
 
       }else {
         # code...
