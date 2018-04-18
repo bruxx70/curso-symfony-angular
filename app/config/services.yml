@@ -37,5 +37,10 @@ services:
 
     AppBundle\Services\HelperService:
       arguments:
-        $manager: ''
+            $manager: "@doctrine.orm.entity_manager"
       public: true
+
+    AppBundle\Services\JwtAuth:
+      public: true
+      arguments:
+            $manager: "@doctrine.orm.entity_manager"
