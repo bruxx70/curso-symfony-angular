@@ -11,12 +11,14 @@ use Firebase\JWT\JWT;
 class JwtAuth
 {
   public $manager;
+  public $key;
 
 
 
   public function __construct($manager)
   {
     $this->manager = $manager;
+    $this->key = "19030324";
 
   }
 
@@ -30,7 +32,18 @@ class JwtAuth
 
     if(is_object($user))
     {
-      //generar token jwt
+
+      $token = array("sub" => $used->getId(),
+                     "email" => $used->getEmail(),
+                     "name" => $used->getName(),
+                     "surname" => $used->getSurname()
+                     "iat" => time()
+                     "exp" => time() + 7 * 24 * 60 * 60
+                   );
+
+     JWT::encode($token,$this->key);
+
+
       $data = array('status' => 'success','user' => $user );
     }else {
       $data = array('status' => 'error','data' => 'login failed' );
