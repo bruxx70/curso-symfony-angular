@@ -23,7 +23,7 @@ class JwtAuth
   }
 
 
-  public function singup($email, $password)
+  public function singup($email, $password, $getHash = null)
   {
     // var_dump($this->manager);
     // die();
@@ -33,22 +33,49 @@ class JwtAuth
     if(is_object($user))
     {
 
-      $token = array("sub" => $used->getId(),
-                     "email" => $used->getEmail(),
-                     "name" => $used->getName(),
-                     "surname" => $used->getSurname()
-                     "iat" => time()
+      $token = array("sub" => $user->getId(),
+                     "email" => $user->getEmail(),
+                     "name" => $user->getName(),
+                     "surname" => $user->getSurname(),
+                     "iat" => time(),
                      "exp" => time() + 7 * 24 * 60 * 60
                    );
 
-     JWT::encode($token,$this->key);
+     $jwt = JWT::encode($token,$this->key, 'HS256');
+     $decoded = JWT::decode($jwt, $this->key, ['HS256']);
 
-
-      $data = array('status' => 'success','user' => $user );
+     if (is_null($getHash)) {
+       $data = $jwt;
+     }else {
+       $data = $decoded;
+     }
     }else {
       $data = array('status' => 'error','data' => 'login failed' );
     }
     return $data;
+  }
+
+  public function checkToken($jwt,$getIdentity = false)
+  {
+    $auth = false;
+    try {
+        $decoded = JWT::decode($jwt,$this->key, ['HS256']);
+    } catch (\UnexpectedValueException $e) {
+      $auth = false;
+    }catch(\DomainException $e){
+      $auth = false;
+    }
+
+    if(is_object($decoded) && isset($decoded->sub)){
+      $auth = true;
+    }
+
+    if($getIdentity == false)
+      return $auth;
+    else
+      return $decoded;
+
+
   }
 
 }
