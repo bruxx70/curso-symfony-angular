@@ -5,7 +5,9 @@ namespace BackendBundle\Controller;
 use BackendBundle\Entity\Users;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;use Symfony\Component\HttpFoundation\Request;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Symfony\Component\HttpFoundation\Request;
+use AppBundle\Services\HelperService;
 
 /**
  * User controller.
@@ -20,10 +22,9 @@ class UsersController extends Controller
      * @Route("/", name="users_index")
      * @Method("GET")
      */
-    public function indexAction()
+    public function indexAction(Request $request)
     {
         $em = $this->getDoctrine()->getManager();
-
         $users = $em->getRepository('BackendBundle:Users')->findAll();
 
         return $this->render('users/index.html.twig', array(
@@ -39,7 +40,7 @@ class UsersController extends Controller
      */
     public function newAction(Request $request)
     {
-        $user = new User();
+        $user = new Users();
         $form = $this->createForm('BackendBundle\Form\UsersType', $user);
         $form->handleRequest($request);
 
